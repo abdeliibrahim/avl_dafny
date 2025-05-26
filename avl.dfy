@@ -76,4 +76,18 @@ class AvlTree {
   ghost var Repr: set<object>
 
   var root: AvlNode?;
+
+  
+ghost predicate Valid()
+  reads this, Repr
+{
+  this in Repr && // The tree object is part of its own representation set
+  (root == null ==> Repr == {}) && // If the tree is empty, its representation set is empty
+  (root != null ==> root in Repr && root.Repr <= Repr) && // If not empty, root is in the set and its representation is a subset
+  (root != null ==> root.Valid()) && // The root node is structurally and abstractly valid
+  (root != null ==> root.Contents == Contents) && // The tree's contents match the root's contents
+  (root != null ==> root.Repr == Repr) && // The tree's representation set matches the root's
+  Contents == (if root == null then {} else root.Contents) && // Contents is empty iff root is null, otherwise matches root
+  Repr == (if root == null then {} else root.Repr) // Repr is empty iff root is null, otherwise matches root
+}
 }
