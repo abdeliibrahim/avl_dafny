@@ -7,7 +7,6 @@ class AvlNode {
   var left: AvlNode?
   var right: AvlNode?
 
-  // Checks that the height field is consistent with the structure
   ghost predicate Height_Valid()
     reads this, Repr
   {
@@ -20,7 +19,7 @@ class AvlNode {
     height == 1 + max(if left == null then -1 else left.height, if right == null then -1 else right.height)
   }
 
-  // Checks if the tree is balanced (difference in subtree heights ≤ 1)
+  // difference in subtree heights ≤ 1
   ghost predicate Balanced()
     reads this, Repr
   {
@@ -34,13 +33,11 @@ class AvlNode {
     leftHeight - rightHeight <= 1 && rightHeight - leftHeight <= 1
   }
 
-  // Utility to compute max of two integers
   function max(a: int, b: int) : int
   {
     if a >= b then a else b
   }
 
-  // Asserts structural and abstract validity of the subtree rooted at this node
   ghost predicate Valid()
     reads this, Repr
   {
@@ -54,7 +51,7 @@ class AvlNode {
     Repr == {this} + (if left == null then {} else left.Repr) + (if right == null then {} else right.Repr)
   }
 
-  // Initializes a leaf node with value x
+  // init leaf node with value x
   constructor Init(x: int)
     ensures Valid() && fresh(Repr - {this})
     ensures Height_Valid()
@@ -77,20 +74,35 @@ class AvlTree {
 
   var root: AvlNode?;
 
-ghost predicate Valid()
-  // Allow this predicate to access the tree object, the root node, and the root’s subtree
-  reads this, root, if root != null then root.Repr else {}
-{
-  // If the tree is empty (no root), then:
-  // - There should be no contents in the tree
-  // - There should be no nodes in its representation set
-  if root == null then
-    Contents == {} && Repr == {}
-  else
-    // If the tree is non-empty:
-    root.Valid() &&                      // The root node and its entire subtree must be valid
-    Contents == root.Contents &&         // The tree's abstract set of values matches the root’s
-    Repr == root.Repr                    // The tree's abstract representation matches the root’s subtree
-}
+  ghost predicate Valid()
+    reads this, root, if root != null then root.Repr else {}
+  {
+    // empty
+    if root == null then
+      Contents == {}
+    else
+      root in Repr && root.Repr <= Repr &&
+      root.Valid() &&
+      Contents == root.Contents
+  }
 
+  ghost predicate Balanced()
+    reads this, root, if root != null then root.Repr else {}
+  {
+    if root == null then
+      true
+    else
+      root.Balanced()
+  }
+
+  // init empty AVL tree
+  constructor Init()
+    ensures Valid() && fresh(Repr - {this})
+    ensures Contents == {}
+    ensures Balanced()
+  {
+    root := null;
+    Repr := {this};
+    Contents := {};
+  }
 }
