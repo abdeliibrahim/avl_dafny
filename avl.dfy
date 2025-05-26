@@ -56,3 +56,11 @@ class AvlNode {
     Repr := {this};
   }
 }
+
+class AvlTree {
+    ghost var Contents: set<int>
+    ghost var Repr: set<object>
+
+    var root: AvlNode?;
+    
+}
