@@ -20,17 +20,16 @@ class AvlNode {
   }
 
 ghost predicate Balanced()
-  reads this, Repr, left, right,
-        if left != null then {left} + left.Repr else {},
-        if right != null then {right} + right.Repr else {}
-  decreases |Repr|
+    reads this, Repr
 {
-  this in Repr &&
-  (left != null ==> left in Repr && left.Balanced()) &&
-  (right != null ==> right in Repr && right.Balanced()) &&
-  var leftHeight := if left == null then -1 else left.height;
-  var rightHeight := if right == null then -1 else right.height;
-  -1 <= leftHeight - rightHeight <= 1
+    this in Repr &&
+    Height_Valid() &&
+    Valid() &&
+    (left != null ==> left in Repr && left.Balanced()) &&
+    (right != null ==> right in Repr && right.Balanced()) &&
+    var leftHeight := if left == null then -1 else left.height;
+    var rightHeight := if right == null then -1 else right.height;
+    leftHeight - rightHeight <= 1 && rightHeight - leftHeight <= 1
 }
 
   function max(a: int, b: int) : int
