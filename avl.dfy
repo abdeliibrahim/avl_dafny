@@ -77,17 +77,20 @@ class AvlTree {
 
   var root: AvlNode?;
 
-  
 ghost predicate Valid()
-  reads this, Repr
+  // Allow this predicate to access the tree object, the root node, and the root’s subtree
+  reads this, root, if root != null then root.Repr else {}
 {
-  this in Repr && // The tree object is part of its own representation set
-  (root == null ==> Repr == {}) && // If the tree is empty, its representation set is empty
-  (root != null ==> root in Repr && root.Repr <= Repr) && // If not empty, root is in the set and its representation is a subset
-  (root != null ==> root.Valid()) && // The root node is structurally and abstractly valid
-  (root != null ==> root.Contents == Contents) && // The tree's contents match the root's contents
-  (root != null ==> root.Repr == Repr) && // The tree's representation set matches the root's
-  Contents == (if root == null then {} else root.Contents) && // Contents is empty iff root is null, otherwise matches root
-  Repr == (if root == null then {} else root.Repr) // Repr is empty iff root is null, otherwise matches root
+  // If the tree is empty (no root), then:
+  // - There should be no contents in the tree
+  // - There should be no nodes in its representation set
+  if root == null then
+    Contents == {} && Repr == {}
+  else
+    // If the tree is non-empty:
+    root.Valid() &&                      // The root node and its entire subtree must be valid
+    Contents == root.Contents &&         // The tree's abstract set of values matches the root’s
+    Repr == root.Repr                    // The tree's abstract representation matches the root’s subtree
 }
+
 }
