@@ -7,6 +7,7 @@ class AvlNode {
   var left: AvlNode?
   var right: AvlNode?
 
+  // Checks that the height field is consistent with the structure
   ghost predicate Height_Valid()
     reads this, Repr
   {
@@ -19,9 +20,10 @@ class AvlNode {
     height == 1 + max(if left == null then -1 else left.height, if right == null then -1 else right.height)
   }
 
-ghost predicate Balanced()
+  // Checks if the tree is balanced (difference in subtree heights ≤ 1)
+  ghost predicate Balanced()
     reads this, Repr
-{
+  {
     this in Repr &&
     Height_Valid() &&
     Valid() &&
@@ -30,13 +32,15 @@ ghost predicate Balanced()
     var leftHeight := if left == null then -1 else left.height;
     var rightHeight := if right == null then -1 else right.height;
     leftHeight - rightHeight <= 1 && rightHeight - leftHeight <= 1
-}
+  }
 
+  // Utility to compute max of two integers
   function max(a: int, b: int) : int
   {
     if a >= b then a else b
   }
 
+  // Asserts structural and abstract validity of the subtree rooted at this node
   ghost predicate Valid()
     reads this, Repr
   {
@@ -50,6 +54,7 @@ ghost predicate Balanced()
     Repr == {this} + (if left == null then {} else left.Repr) + (if right == null then {} else right.Repr)
   }
 
+  // Initializes a leaf node with value x
   constructor Init(x: int)
     ensures Valid() && fresh(Repr - {this})
     ensures Height_Valid()
@@ -67,9 +72,8 @@ ghost predicate Balanced()
 }
 
 class AvlTree {
-    ghost var Contents: set<int>
-    ghost var Repr: set<object>
+  ghost var Contents: set<int>
+  ghost var Repr: set<object>
 
-    var root: AvlNode?;
-    
+  var root: AvlNode?;
 }
