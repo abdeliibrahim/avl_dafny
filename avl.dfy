@@ -94,6 +94,39 @@ class AVLNode<T> {
   }
 }
 
+// AVLTree class to manage the AVL tree structure
+class AVLTree<T> {
+  var root: AVLNode?<T>
+
+  constructor()
+    ensures root == null
+  {
+    root := null;
+  }
+
+  predicate Valid()
+    reads this, root, if root != null then {root.left} else {}, if root != null then {root.right} else {}
+  {
+    root == null || root.ValidAVLNode()
+  }
+
+  method IsEmpty() returns (empty: bool)
+    ensures empty <==> (root == null)
+  {
+    empty := (root == null);
+  }
+
+  method GetHeight() returns (h: nat)
+    ensures h == (if root == null then 0 else root.height)
+  {
+    if root == null {
+      h := 0;
+    } else {
+      h := root.height;
+    }
+  }
+}
+
 method TestAVLNode()
 {
   var root := new AVLNode(10);
@@ -110,7 +143,6 @@ method TestAVLNode()
   assert root.IsBalanced();
   assert root.HasTwoChildren();
   assert !root.IsLeaf();
-
 }
 
 method TestBalanceFactors()
@@ -133,7 +165,6 @@ method TestBalanceFactors()
 
   root.right := right;
   root.UpdateHeight();
-
 }
 
 method TestSingleNode()
@@ -145,7 +176,16 @@ method TestSingleNode()
   assert node.BalanceFactor() == 0;
   assert node.IsBalanced();
   assert node.ValidAVLNode();
+}
 
+method TestAVLTree()
+{
+  var tree := new AVLTree<int>();
+  var empty := tree.IsEmpty();
+  assert empty;
+  
+  var h := tree.GetHeight();
+  assert h == 0;
 }
 
 method Main()
@@ -153,5 +193,5 @@ method Main()
   TestAVLNode();
   TestBalanceFactors();
   TestSingleNode();
+  TestAVLTree();
 }
-
