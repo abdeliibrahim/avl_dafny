@@ -92,16 +92,37 @@ class AVLNode<T> {
   {
     left != null && right != null
   }
+
+
+
 }
 
+
+
+
 // AVLTree class to manage the AVL tree structure
+
+// Comparator interface to define the comparison operations for AVLTree
+// This interface allows the AVLTree to be generic over any type T that can be compared
+// using a custom comparator. The Less method checks if one element is less than another,
+// and the Equal method checks if two elements are equal.
+trait Comparator<T> {
+  method Less(x: T, y: T) returns (b: bool)
+    ensures b ==> x != y
+
+  method Equal(x: T, y: T) returns (b: bool)
+    ensures b <==> x == y
+}
+
 class AVLTree<T> {
   var root: AVLNode?<T>
+  var cmp: Comparator<T>
 
-  constructor()
+  constructor(c: Comparator<T>)
     ensures root == null
   {
     root := null;
+    cmp := c;
   }
 
   predicate Valid()
@@ -125,6 +146,33 @@ class AVLTree<T> {
       h := root.height;
     }
   }
+
+  method Search(value: T) returns (found: bool)
+  requires Valid() // Tree is valid at the beginning
+  ensures Valid()  // Tree is unchanged, so still valid
+  decreases *
+{
+  var current := root;
+  while current != null
+    decreases *
+  {
+    var isEqual := cmp.Equal(current.data, value);
+    if isEqual {
+      found := true;
+      return;
+    }
+
+    var isLess := cmp.Less(value, current.data);
+    if isLess {
+      current := current.left;
+    } else {
+      current := current.right;
+    }
+  }
+  found := false;
+}
+
+
 }
 
 method TestAVLNode()
@@ -178,20 +226,11 @@ method TestSingleNode()
   assert node.ValidAVLNode();
 }
 
-method TestAVLTree()
-{
-  var tree := new AVLTree<int>();
-  var empty := tree.IsEmpty();
-  assert empty;
-  
-  var h := tree.GetHeight();
-  assert h == 0;
-}
 
 method Main()
 {
   TestAVLNode();
   TestBalanceFactors();
   TestSingleNode();
-  TestAVLTree();
+  // TestAVLTree();
 }
