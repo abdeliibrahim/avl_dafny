@@ -37,7 +37,7 @@ class AVLNode<T> {
   function BalanceFactor(): int
     reads this, left, right
   {
-    RightHeight() - LeftHeight()
+    RightHeight() - LeftHeight() 
   }
 
   predicate IsBalanced()
@@ -75,6 +75,7 @@ class AVLNode<T> {
     height := 1 + if leftH > rightH then leftH else rightH;
   }
 
+  // ------------ utils
   function IsLeaf(): bool
     reads this
   {
@@ -93,6 +94,7 @@ class AVLNode<T> {
     left != null && right != null
   }
 }
+// ---
 
 method TestAVLNode()
 {
@@ -109,8 +111,7 @@ method TestAVLNode()
   assert root.BalanceFactor() == 0;
   assert root.IsBalanced();
   assert root.HasTwoChildren();
-  assert !root.IsLeaf();
-
+  assert !root.IsLeaf(); 
 }
 
 method TestBalanceFactors()
@@ -132,8 +133,7 @@ method TestBalanceFactors()
   right.UpdateHeight();
 
   root.right := right;
-  root.UpdateHeight();
-
+  root.UpdateHeight(); 
 }
 
 method TestSingleNode()
@@ -145,7 +145,6 @@ method TestSingleNode()
   assert node.BalanceFactor() == 0;
   assert node.IsBalanced();
   assert node.ValidAVLNode();
-
 }
 
 method Main()
@@ -154,4 +153,3 @@ method Main()
   TestBalanceFactors();
   TestSingleNode();
 }
-
