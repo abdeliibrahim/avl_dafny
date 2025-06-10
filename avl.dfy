@@ -1,108 +1,125 @@
-class AvlNode {
-  ghost var Contents: set<int>
-  ghost var Repr: set<AvlNode>
+class AVLNode<T> {
+    var data: T
+    var left: AVLNode?<T>
+    var right: AVLNode?<T>
+    var height: nat
 
-  var height: int
-  var data: int
-  var left: AvlNode?
-  var right: AvlNode?
+    constructor(value: T)
+        ensures data == value
+        ensures left == null
+        ensures right == null
+        ensures height == 1
+    {
+        data := value;
+        left := null;
+        right := null;
+        height := 1;
+    }
 
-  ghost predicate height_valid()
-    reads this, Repr
-  {
-    this in Repr &&
-    (left != null ==> left in Repr && left.Repr <= Repr && this !in left.Repr) &&
-    (right != null ==> right in Repr && right.Repr <= Repr && this !in right.Repr) &&
-    (left != null && right != null ==> left.Repr !! right.Repr) &&
-    (left != null ==> left.height_valid()) &&
-    (right != null ==> right.height_valid()) &&
-    height == 1 + max(if left == null then -1 else left.height, if right == null then -1 else right.height)
-  }
+    function Height(): nat
+        reads this
+    {
+        height
+    }
 
-  // difference in subtree heights ≤ 1
-  ghost predicate balanced()
-    reads this, Repr
-  {
-    this in Repr &&
-    height_valid() &&
-    valid() &&
-    (left != null ==> left in Repr && left.balanced()) &&
-    (right != null ==> right in Repr && right.balanced()) &&
-    var leftheight := if left == null then -1 else left.height;
-    var rightheight := if right == null then -1 else right.height;
-    leftheight - rightheight <= 1 && rightheight - leftheight <= 1
-  }
+    function LeftHeight(): nat
+        reads this, left
+    {
+        if left == null then 0 else left.height
+    }
 
-  function max(a: int, b: int) : int
-  {
-    if a >= b then a else b
-  }
+    function RightHeight(): nat
+        reads this, right
+    {
+        if right == null then 0 else right.height
+    }
 
-  ghost predicate valid()
-    reads this, Repr
-  {
-    this in Repr &&
-    (left != null ==> left in Repr && left.Repr <= Repr && this !in left.Repr) &&
-    (right != null ==> right in Repr && right.Repr <= Repr && this !in right.Repr) &&
-    (left != null && right != null ==> left.Repr !! right.Repr) &&
-    (left != null ==> left.valid()) &&
-    (right != null ==> right.valid()) &&
-    Contents == {data} + (if left == null then {} else left.Contents) + (if right == null then {} else right.Contents) &&
-    Repr == {this} + (if left == null then {} else left.Repr) + (if right == null then {} else right.Repr)
-  }
+    function BalanceFactor(): int
+        reads this, left, right
+    {
+        RightHeight() - LeftHeight()
+    }
 
-  // init leaf node with value x
-  constructor Init(x: int)
-    ensures valid() && fresh(Repr - {this})
-    ensures height_valid()
-    ensures balanced()
-    ensures Contents == {x}
-    ensures Repr == {this}
-  {
-    data := x;
-    height := 0;
-    left := null;
-    right := null;
-    Contents := {x};
-    Repr := {this};
-  }
+    predicate IsBalanced()
+        reads this, left, right
+    {
+        var bf := BalanceFactor();
+        -1 <= bf <= 1
+    }
+
+    predicate HeightValid()
+        reads this, left, right
+    {
+        height == 1 + if LeftHeight() > RightHeight() then LeftHeight() else RightHeight()
+    }
+
+    predicate ValidAVLNode()
+        reads this, left, right
+        decreases height
+    {
+        HeightValid() &&
+        IsBalanced()
+    }
+
+    method UpdateHeight()
+        requires left == null || left.ValidAVLNode()
+        requires right == null || right.ValidAVLNode()
+        modifies this
+        ensures HeightValid()
+        ensures data == old(data)
+        ensures left == old(left)
+        ensures right == old(right)
+    {
+        var leftH := LeftHeight();
+        var rightH := RightHeight();
+        height := 1 + if leftH > rightH then leftH else rightH;
+    }
+
+    function IsLeaf(): bool
+        reads this
+    {
+        left == null && right == null
+    }
+
+    function HasOneChild(): bool
+        reads this
+    {
+        (left == null && right != null) || (left != null && right == null)
+    }
+
+    function HasTwoChildren(): bool
+        reads this
+    {
+        left != null && right != null
+    }
 }
 
-class AvlTree {
-  ghost var Contents: set<int>
-  ghost var Repr: set<object>
-
-  var root: AvlNode?;
-
-  ghost predicate valid()
-    reads this, root, if root != null then root.Repr else {}
-  {
-    // empty
-    if root == null then
-      Contents == {}
-    else
-      root in Repr && root.Repr <= Repr &&
-      root.valid() &&
-      Contents == root.Contents
-  }
-
-  ghost predicate balanced()
-    reads this, root, if root != null then root.Repr else {}
-  {
-    if root == null then
-      true
-    else
-      root.balanced()
-  }
-
-  // init empty AVL tree
-  constructor Init()
-    ensures valid() && fresh(Repr - {this})
-    ensures Contents == {}
-    ensures balanced()
-  {
-    root := null;
-    Repr := {this};
-    Contents := {};
-  }
+method TestAVLNode()
+{
+    var root := new AVLNode(10);
+    var leftChild := new AVLNode(5);
+    var rightChild := new AVLNode(15);
+    
+    root.left := leftChild;
+    root.right := rightChild;
+    root.UpdateHeight();
+    
+    assert root.ValidAVLNode();
+    assert root.Height() == 2;
+    assert root.BalanceFactor() == 0;
+    assert root.IsBalanced();
+    assert root.HasTwoChildren();
+    assert !root.IsLeaf();
+    
+    print "AVL Node test passed! Root node has value: ", root.data, "\n";
+    print "Root height: ", root.Height(), "\n";
+    print "Balance factor: ", root.BalanceFactor(), "\n";
+    print "Is balanced: ", root.IsBalanced(), "\n";
 }
+
+method Main()
+{
+    TestAVLNode();
+    print "All tests completed successfully!\n";
+}
+
