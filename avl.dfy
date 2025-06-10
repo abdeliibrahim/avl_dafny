@@ -117,9 +117,60 @@ method TestAVLNode()
     print "Is balanced: ", root.IsBalanced(), "\n";
 }
 
+method TestBalanceFactors()
+{
+    print "\n=== Testing Balance Factors ===\n";
+    
+    var root := new AVLNode(20);
+    var left := new AVLNode(10);
+    var leftLeft := new AVLNode(5);
+    
+    left.left := leftLeft;
+    left.UpdateHeight();
+    
+    root.left := left;
+    root.UpdateHeight();
+    
+    print "Left-heavy tree:\n";
+    print "Root balance factor: ", root.BalanceFactor(), "\n";
+    print "Is balanced: ", root.IsBalanced(), "\n";
+    
+    var right := new AVLNode(30);
+    var rightRight := new AVLNode(35);
+    
+    right.right := rightRight;
+    right.UpdateHeight();
+    
+    root.right := right;
+    root.UpdateHeight();
+    
+    print "After adding right subtree:\n";
+    print "Root balance factor: ", root.BalanceFactor(), "\n";
+    print "Is balanced: ", root.IsBalanced(), "\n";
+    print "Root height: ", root.Height(), "\n";
+}
+
+method TestSingleNode()
+{
+    print "\n=== Testing Single Node ===\n";
+    
+    var node := new AVLNode(42);
+    
+    assert node.IsLeaf();
+    assert node.Height() == 1;
+    assert node.BalanceFactor() == 0;
+    assert node.IsBalanced();
+    assert node.ValidAVLNode();
+    
+    print "Single node test passed!\n";
+    print "Value: ", node.data, ", Height: ", node.Height(), "\n";
+}
+
 method Main()
 {
     TestAVLNode();
-    print "All tests completed successfully!\n";
+    TestBalanceFactors();
+    TestSingleNode();
+    print "\nAll tests completed successfully!\n";
 }
 
