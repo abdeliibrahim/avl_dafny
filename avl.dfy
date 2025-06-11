@@ -53,13 +53,15 @@ class AVLNode<T> {
     height == 1 + if LeftHeight() > RightHeight() then LeftHeight() else RightHeight()
   }
 
-  predicate ValidAVLNode()
-    reads this, left, right
-    decreases height
-  {
-    HeightValid() &&
-    IsBalanced()
-  }
+predicate ValidAVLNode()
+  reads *
+  decreases height
+{
+  HeightValid() &&
+  IsBalanced() &&
+  (left == null || left.ValidAVLNode()) &&
+  (right == null || right.ValidAVLNode())
+}
 
   method UpdateHeight()
     modifies this
@@ -78,6 +80,7 @@ class AVLNode<T> {
     requires right != null
     modifies this, right
     ensures newRoot.data == old(right.data)
+
   {
     var pivot := right;
     var temp := pivot.left;
@@ -179,11 +182,17 @@ class AVLNode<T> {
 
 // AVLTree below
 trait Comparator<T> {
-  method Less(x: T, y: T) returns (b: bool)
-    ensures b ==> x != y
+    method Less(x: T, y: T) returns (b: bool)
+      ensures b ==> x != y
 
-  method Equal(x: T, y: T) returns (b: bool)
-    ensures b <==> x == y
+    method Equal(x: T, y: T) returns (b: bool)
+      ensures b <==> x == y
+
+    ghost function  LessThan(x: T, y: T): bool
+      ensures LessThan(x, y) ==> x != y
+
+    ghost function  EqualTo(x: T, y: T): bool
+      ensures EqualTo(x, y) <==> x == y
 }
 
 class AVLTree<T> {
@@ -198,7 +207,7 @@ class AVLTree<T> {
   }
 
   predicate Valid()
-    reads this, root, if root != null then {root.left} else {null}, if root != null then {root.right} else {null}
+    reads *
   {
     root == null || root.ValidAVLNode()
   }
@@ -244,8 +253,19 @@ class AVLTree<T> {
     found := false;
   }
 
+  
+
+
+
+
+
 
 }
+
+
+
+
+
 
 method TestAVLNode()
 {
