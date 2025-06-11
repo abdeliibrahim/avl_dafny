@@ -178,11 +178,6 @@ class AVLNode<T> {
 
 
 // AVLTree below
-
-// Comparator interface to define the comparison operations for AVLTree
-// This interface allows the AVLTree to be generic over any type T that can be compared
-// using a custom comparator. The Less method checks if one element is less than another,
-// and the Equal method checks if two elements are equal.
 trait Comparator<T> {
   method Less(x: T, y: T) returns (b: bool)
     ensures b ==> x != y
