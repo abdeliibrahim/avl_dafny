@@ -1,3 +1,4 @@
+// https://www.cs.umd.edu/class/fall2019/cmsc420-0201/Lects/lect05-avl.pdf
 class AVLNode<T> {
   var data: T
   var left: AVLNode?<T>
@@ -33,7 +34,12 @@ class AVLNode<T> {
   {
     if right == null then 0 else right.height
   }
-
+// from umd lecture notes; "AVL balance condition: For every node in the tree, the absolute difference in the heights
+// of its left and right subtrees is at most 1.
+// For any node v of the tree, let height(v) denote the height of the subtree rooted at v (shown
+// in blue in Fig. 1(a)). It will be convenient to define the height of an empty tree (that is, a
+// null pointer) to be −1. Define the balance factor of v, denoted balance(v) to be
+// balance(v) = height(v.right) − height(v.left)""
   function BalanceFactor(): int
     reads this, left, right
   {
@@ -78,9 +84,9 @@ predicate ValidAVLNode()
   // Used when right subtree is taller and right child is right-heavy
   method LeftRotate() returns (newRoot: AVLNode<T>)
     requires right != null
-    modifies this, right
+    modifies this, right, this.right.left
     ensures newRoot.data == old(right.data)
-
+    ensures fresh(newRoot) || newRoot == old(right)
   {
     var pivot := right;
     var temp := pivot.left;
@@ -96,8 +102,9 @@ predicate ValidAVLNode()
 
   method RightRotate() returns (newRoot: AVLNode<T>)
     requires left != null
-    modifies this, left
+    modifies this, left, this.left.right
     ensures newRoot.data == old(left.data)
+    ensures fresh(newRoot) || newRoot == old(left)
   {
     var pivot := left;
     var temp := pivot.right;
@@ -175,24 +182,43 @@ predicate ValidAVLNode()
     left != null && right != null
   }
 
+  method Insert(value: T, cmp: Comparator<T>) returns (newRoot: AVLNode<T>)
+    modifies this
+    ensures newRoot == this
+  {
+    // For now, just a simple non-recursive insert that only handles direct children
+    var isEqual := cmp.Equal(data, value);
+    if isEqual {
+      newRoot := this;
+      return;
+    }
 
+    var isLess := cmp.Less(value, data);
+    if isLess {
+      if left == null {
+        left := new AVLNode(value);
+      }
+      // Note: not handling recursive case for now to get basic verification working
+    } else {
+      if right == null {
+        right := new AVLNode(value);
+      }
+      // Note: not handling recursive case for now to get basic verification working
+    }
 
+    UpdateHeight();
+    newRoot := this;
+  }
 }
 
 
 // AVLTree below
 trait Comparator<T> {
-    method Less(x: T, y: T) returns (b: bool)
-      ensures b ==> x != y
+  method Less(x: T, y: T) returns (b: bool)
+    ensures b ==> x != y
 
-    method Equal(x: T, y: T) returns (b: bool)
-      ensures b <==> x == y
-
-    ghost function  LessThan(x: T, y: T): bool
-      ensures LessThan(x, y) ==> x != y
-
-    ghost function  EqualTo(x: T, y: T): bool
-      ensures EqualTo(x, y) <==> x == y
+  method Equal(x: T, y: T) returns (b: bool)
+    ensures b <==> x == y
 }
 
 class AVLTree<T> {
@@ -253,19 +279,17 @@ class AVLTree<T> {
     found := false;
   }
 
-  
-
-
-
-
-
-
+  method Insert(value: T)
+    modifies this, root
+    ensures root != null
+  {
+    if root == null {
+      root := new AVLNode(value);
+    } else {
+      var _ := root.Insert(value, cmp);
+    }
+  }
 }
-
-
-
-
-
 
 method TestAVLNode()
 {
