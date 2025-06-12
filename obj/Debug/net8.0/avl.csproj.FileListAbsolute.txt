@@ -1,0 +1,15 @@
+/Users/paimannejrabi/Desktop/ECS 261 HW/avl_dafny/obj/Debug/net8.0/avl.GeneratedMSBuildEditorConfig.editorconfig
+/Users/paimannejrabi/Desktop/ECS 261 HW/avl_dafny/obj/Debug/net8.0/avl.AssemblyInfoInputs.cache
+/Users/paimannejrabi/Desktop/ECS 261 HW/avl_dafny/obj/Debug/net8.0/avl.AssemblyInfo.cs
+/Users/paimannejrabi/Desktop/ECS 261 HW/avl_dafny/obj/Debug/net8.0/avl.csproj.CoreCompileInputs.cache
+/Users/paimannejrabi/Desktop/ECS 261 HW/avl_dafny/obj/Debug/net8.0/avl.sourcelink.json
+/Users/paimannejrabi/Desktop/ECS 261 HW/avl_dafny/avl
+/Users/paimannejrabi/Desktop/ECS 261 HW/avl_dafny/obj/Debug/net8.0/avl.dll
+/Users/paimannejrabi/Desktop/ECS 261 HW/avl_dafny/obj/Debug/net8.0/refint/avl.dll
+/Users/paimannejrabi/Desktop/ECS 261 HW/avl_dafny/obj/Debug/net8.0/avl.pdb
+/Users/paimannejrabi/Desktop/ECS 261 HW/avl_dafny/avl.deps.json
+/Users/paimannejrabi/Desktop/ECS 261 HW/avl_dafny/obj/Debug/net8.0/avl.genruntimeconfig.cache
+/Users/paimannejrabi/Desktop/ECS 261 HW/avl_dafny/avl.runtimeconfig.json
+/Users/paimannejrabi/Desktop/ECS 261 HW/avl_dafny/avl.dll
+/Users/paimannejrabi/Desktop/ECS 261 HW/avl_dafny/obj/Debug/net8.0/ref/avl.dll
+/Users/paimannejrabi/Desktop/ECS 261 HW/avl_dafny/avl.pdb
